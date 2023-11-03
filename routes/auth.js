@@ -1,52 +1,40 @@
 const express = require('express');
-const passport = require('passport');
-const FacebookStrategy = require('passport-facebook').Strategy;
-const User = require('../models/user');
-require('dotenv').config();
-
 const router = express.Router();
+const passport = require('passport');
+const User = require('../models/userModel');
 
-passport.use(new FacebookStrategy({
-  clientID: process.env.FACEBOOK_APP_ID,
-  clientSecret: process.env.FACEBOOK_APP_SECRET,
-  callbackURL: "/auth/facebook/callback",
-  profileFields: ['id', 'displayName', 'photos', 'email', 'birthday', 'gender', 'friends']
-},
-function(accessToken, refreshToken, profile, cb) {
-    // profile._json contains the user data returned from Facebook
-    User.findOrCreate({
-      where: { facebookId: profile.id },
-      defaults: {
-        email: profile.emails[0].value,
-        birthday: profile._json.birthday,
-        gender: profile._json.gender,
-        photos: profile.photos ? profile.photos.map(photo => photo.value) : [],
-        friends: profile._json.friends.data,
-      }
-    }).then(([user, created]) => {
-      return cb(null, user);
-    }).catch((err) => {
-      return cb(err);
-    });
-  }));
+// Initiate Facebook Auth
+router.get('/facebook', passport.authenticate('facebook', { 
+  scope: ['email', 'user_birthday', 'user_gender', 'user_friends'] 
+}));
 
-passport.serializeUser((user, cb) => {
-  cb(null, user.id);
-});
+// Facebook Auth Callback
+router.get('/facebook/callback', passport.authenticate('facebook', {
+  successRedirect: '/',
+  failureRedirect: '/login'
+}));
 
-passport.deserializeUser((id, cb) => {
-  User.findByPk(id).then((user) => {
-    cb(null, user);
+// Logout Route
+router.get('/logout', (req, res) => {
+  req.logout();
+  req.session.destroy(() => {
+    res.clearCookie('connect.sid');
+    res.redirect('/');
   });
 });
 
-router.get('/auth/facebook', passport.authenticate('facebook'));
-
-router.get('/auth/facebook/callback',
-  passport.authenticate('facebook', { failureRedirect: '/' }),
-  (req, res) => {
-    res.redirect('/profile');
+// Delete Account
+router.delete('/delete-account', async (req, res) => {
+  if (req.user) {
+    await User.destroy({ where: { facebookId: req.user.facebookId } });
+    req.logout();
+    req.session.destroy(() => {
+      res.clearCookie('connect.sid');
+      res.status(200).send('Account deleted');
+    });
+  } else {
+    res.status(401).send('User not authenticated');
   }
-);
+});
 
 module.exports = router;
