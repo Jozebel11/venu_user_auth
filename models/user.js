@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('./index'); // import your sequelize configured instance
+const sequelize = require('../config/database'); // import your sequelize configured instance
 
 const User = sequelize.define('User', {
   facebookId: {
@@ -30,14 +30,7 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING,
     allowNull: true // assuming gender might not be provided
   },
-  photos: {
-    type: DataTypes.ARRAY(DataTypes.TEXT), // Storing an array of photo URLs
-    allowNull: true
-  },
-  friends: {
-    type: DataTypes.JSONB, // Using JSONB to store an array of friend objects
-    allowNull: true
-  }
+  
 }, {
   // Additional model options go here
   tableName: 'users',
