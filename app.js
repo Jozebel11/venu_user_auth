@@ -3,11 +3,11 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const passport = require('passport');
 const session = require('express-session');
-const authRoutes = require('./routes/authFacebook');
-
+const flash = require("express-flash");
+const authFbRoutes = require('./routes/authFacebook');
+require("./config/passport")(passport);
 const app = express();
 
-// Passport setup
 
 
 // Configure session management
@@ -22,8 +22,13 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+//Use flash messages for errors, info, ect...
+app.use(flash());
 
-app.use('/', authRoutes);
+
+app.use('/', authFbRoutes);
+
+
 
 
 
