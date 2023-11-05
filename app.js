@@ -5,7 +5,6 @@ const passport = require('passport');
 const session = require('express-session');
 const flash = require("express-flash");
 const authFbRoutes = require('./routes/authFacebook');
-require("./config/passport")(passport);
 const app = express();
 
 
