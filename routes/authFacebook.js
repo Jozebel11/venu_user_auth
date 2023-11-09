@@ -55,6 +55,24 @@ router.get('/auth/facebook/callback', passport.authenticate('facebook', { failur
 (req, res) => {
   res.redirect('/profile');
 });
+router.get('/logout', function(req, res){
+  req.logout(function(err) {
+    if (err) { return next(err); }
+    // destroy session data
+    req.session.destroy(function (err) {
+      // cannot access session here anymore
+      if (err) {
+        console.error(`Error: Failed to destroy the session during logout. Error: ${err}`);
+        next(err);
+      } else {
+        // clear the cookie and redirect the user
+        res.clearCookie('connect.sid'); // The cookie that contains the session id
+        res.redirect('/'); // Redirect to the desired page after logout
+      }
+    });
+  });
+});
+
 
 
 module.exports = router;
