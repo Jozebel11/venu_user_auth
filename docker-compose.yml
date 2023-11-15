@@ -10,25 +10,53 @@ services:
     depends_on:
       - db
     environment:
-      FACEBOOK_APP_ID: ${FACEBOOK_APP_ID}
-      FACEBOOK_APP_SECRET: ${FACEBOOK_APP_SECRET}
-      SESSION_SECRET: ${SESSION_SECRET}
+      FACEBOOK_APP_ID: /run/secrets/fb_app-id
+      FACEBOOK_APP_SECRET: /run/secrets/fb_app-secret
+      SESSION_SECRET: /run/secrets/session_secret
+    secrets:
+      - fb_app_id
+      - fb_app_secret
+      - session_secret
 
 
   db:
     image: postgres:latest
     ports:
-      - "5432:5432"
+      - "9847:9847"
     env_file:
       - .env
     environment:
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
-      DB_NAME: ${DB_NAME}
-      DATABASE_URL: ${DATABASE_URL}
+      DB_USER: /run/secrets/db_username
+      DB_PASSWORD: /run/secrets/db_password
+      DB_NAME: /run/secrets/db_name
+      DB_HOST: /run/secrets/db_host
 
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    secrets:
+      - db_password
+      - db_host
+      - db_name
+      - db_username
+       
+
+    
+secrets:
+   db_password:
+     file: db_password.txt
+   db_root_username:
+     file: db_username.txt
+   db_host:
+     file: db_host.txt
+   db_root_name:
+     file: db_name.txt
+   fb_app_id:
+     file: fb_app_id.txt
+   fb_app_secret:
+     file: fb_app_secret.txt
+   session_secret:
+     file: session_secret.txt
+
 
 volumes:
   postgres_data:
