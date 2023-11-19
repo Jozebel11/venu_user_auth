@@ -30,7 +30,22 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING,
     allowNull: true // assuming gender might not be provided
   },
-  
+  interestedInGender: {
+    type: DataTypes.STRING,
+    allowNull: true // assuming this might not be provided
+  },
+  bio: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+  location: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  profilePicture: {
+    type: DataTypes.STRING,
+    allowNull: true
+  }
 }, {
   // Additional model options go here
   tableName: 'users',

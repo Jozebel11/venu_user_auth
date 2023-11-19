@@ -36,7 +36,7 @@ app.get('/', (req, res) => {
   res.send('Welcome to the Dating App!');
 });
 app.get('/profile', (req, res) => {
-    res.send(`Hello, ${req.user.name}, ${req.user.gender}, ${req.user.birthday}, ${req.user.email}`);
+    res.send(`Hello, ${req.user.name}, ${req.user.gender}, ${req.user.birthday}, ${req.user.email}, ${req.user.bio}`);
   });
 // Start the server
 const PORT = process.env.PORT || 3000;
