@@ -17,19 +17,21 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       DB_NAME: ${DB_NAME}
       DB_HOST: 'db'
+      DB_PORT: '5432'
 
 
   db:
     image: postgres:latest
     ports:
-      - "9847:9847"
+      - "5432:5432"
     env_file:
       - .env
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
-      DB_HOST: 'db'
+      POSTGRES_HOST: 'db'
+      POSTGRES_PORT: '5432'
      
 
     volumes:
