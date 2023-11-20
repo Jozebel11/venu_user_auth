@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { ensureAuth, ensureGuest } = require("../middleware/auth");
+const jwt = require('jsonwebtoken');
+const { generateToken } = require('../utils/jwtUtils');
 const passport = require("passport");
 const User = require('../models/user');
 const FacebookStrategy = require('passport-facebook').Strategy;
@@ -53,7 +54,9 @@ const FacebookStrategy = require('passport-facebook').Strategy;
 router.get("/auth/facebook",  passport.authenticate("facebook"));
 router.get('/auth/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/' }),
 (req, res) => {
-  res.redirect('/profile');
+
+  const token = generateToken(req.user);
+  res.redirect(`/profile?token=${token}`);
 });
 router.get('/logout', function(req, res){
   req.logout(function(err) {

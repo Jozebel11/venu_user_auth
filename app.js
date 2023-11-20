@@ -6,9 +6,12 @@ const session = require('express-session');
 const flash = require("express-flash");
 const authFbRoutes = require('./routes/authFacebook');
 const app = express();
+const protectedRoutes = require('./routes/protectedRoutes');
+const cors = require('cors')
 
 
 
+app.use(cors({ origin: true }));
 // Configure session management
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(session({
@@ -20,6 +23,7 @@ app.use(session({
 // Initialize Passport and restore authentication state, if any, from the session.
 app.use(passport.initialize());
 app.use(passport.session());
+app.use('/api', protectedRoutes);
 
 //Use flash messages for errors, info, ect...
 app.use(flash());
@@ -38,6 +42,7 @@ app.get('/', (req, res) => {
 app.get('/profile', (req, res) => {
     res.send(`Hello, ${req.user.name}, ${req.user.gender}, ${req.user.birthday}, ${req.user.email}, ${req.user.bio}`);
   });
+
 // Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
