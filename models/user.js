@@ -2,7 +2,11 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database'); // import your sequelize configured instance
 
 const User = sequelize.define('User', {
-  facebookId: {
+  provider: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  userId: {
     type: DataTypes.STRING,
     allowNull: false,
     unique: true
@@ -29,22 +33,6 @@ const User = sequelize.define('User', {
   gender: {
     type: DataTypes.STRING,
     allowNull: true // assuming gender might not be provided
-  },
-  interestedInGender: {
-    type: DataTypes.STRING,
-    allowNull: true // assuming this might not be provided
-  },
-  bio: {
-    type: DataTypes.TEXT,
-    allowNull: true
-  },
-  location: {
-    type: DataTypes.STRING,
-    allowNull: true
-  },
-  profilePicture: {
-    type: DataTypes.STRING,
-    allowNull: true
   }
 }, {
   // Additional model options go here

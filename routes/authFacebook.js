@@ -10,7 +10,7 @@ const FacebookStrategy = require('passport-facebook').Strategy;
         clientID: process.env.FACEBOOK_APP_ID,
         clientSecret: process.env.FACEBOOK_APP_SECRET,
         callbackURL: "/auth/facebook/callback",
-        profileFields: ['id', 'displayName', 'photos', 'email', 'gender', 'birthday', 'friends']
+        profileFields: ['id', 'displayName', 'email', 'gender', 'birthday']
       },
       async (accessToken, refreshToken, profile, cb) => {
         try {
@@ -19,9 +19,10 @@ const FacebookStrategy = require('passport-facebook').Strategy;
           console.log(profile);
           let [user, created] = await User.findOrCreate({
             where: { 
-              facebookId: profile.id,
+              userId: profile.id,
             },
             defaults: {
+              provider: 'facebook',
               name: profile.displayName,
               gender: profile.gender,
               email: profile._json.email, // Make sure this matches your User model
@@ -54,9 +55,7 @@ const FacebookStrategy = require('passport-facebook').Strategy;
 router.get("/auth/facebook",  passport.authenticate("facebook"));
 router.get('/auth/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/' }),
 (req, res) => {
-
-  const token = generateToken(req.user);
-  res.redirect(`/profile?token=${token}`);
+  res.redirect(`/profile`);
 });
 router.get('/logout', function(req, res){
   req.logout(function(err) {

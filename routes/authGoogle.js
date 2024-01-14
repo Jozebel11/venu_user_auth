@@ -1,4 +1,4 @@
-const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
@@ -7,9 +7,10 @@ const passport = require("passport");
 const User = require('../models/user');
 
 passport.use(new GoogleStrategy({
-    clientID: GOOGLE_CLIENT_ID,
-    clientSecret: GOOGLE_CLIENT_SECRET,
-    callbackURL: "http://localhost:3000/auth/google/callback"
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: "/auth/google/callback",
+    profileFields: ['id', 'provider', 'displayName', 'email']
   },
   async (accessToken, refreshToken, profile, cb) => {
     try {
@@ -18,9 +19,10 @@ passport.use(new GoogleStrategy({
       console.log(profile);
       let [user, created] = await User.findOrCreate({
         where: { 
-          googleId: profile.id,
+          userId: profile.id,
         },
         defaults: {
+          provider: profile.provider,
           name: profile.displayName,
           gender: profile.gender,
           email: profile._json.email, // Make sure this matches your User model
@@ -39,9 +41,11 @@ router.get('/auth/google',
   passport.authenticate('google', { scope : ['profile', 'email'] }));
  
 router.get('/auth/google/callback', 
-  passport.authenticate('google', { failureRedirect: '/error' }),
+  passport.authenticate('google', { failureRedirect: '/' }),
   function(req, res) {
     // Successful authentication, redirect success.
-    const token = generateToken(req.user);
-    res.redirect(`/profile?token=${token}`);
+   
+    res.redirect(`/profile`);
   });
+
+module.exports = router;

@@ -5,8 +5,8 @@ const passport = require('passport');
 const session = require('express-session');
 const flash = require("express-flash");
 const authFbRoutes = require('./routes/authFacebook');
+const authGoogleRoutes = require('./routes/authGoogle')
 const app = express();
-const protectedRoutes = require('./routes/protectedRoutes');
 const cors = require('cors')
 
 
@@ -17,19 +17,18 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: false
   }));
 
 // Initialize Passport and restore authentication state, if any, from the session.
-app.use(passport.initialize());
-app.use(passport.session());
-app.use('/api', protectedRoutes);
+app.use(passport.authenticate('session'));
 
 //Use flash messages for errors, info, ect...
 app.use(flash());
 
 
 app.use('/', authFbRoutes);
+app.use('/', authGoogleRoutes);
 
 
 
@@ -40,7 +39,8 @@ app.get('/', (req, res) => {
   res.send('Welcome to the Dating App!');
 });
 app.get('/profile', (req, res) => {
-    res.send(`Hello, ${req.user.name}, ${req.user.gender}, ${req.user.birthday}, ${req.user.email}, ${req.user.bio}`);
+    console.log(req.user)
+    res.send(`Hello, ${req.user.name}, ${req.user.gender}, ${req.user.birthday}, ${req.user.email}`);
   });
 
 // Start the server
