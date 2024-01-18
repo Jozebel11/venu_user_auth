@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
-const { generateToken } = require('../utils/jwtUtils');
 const passport = require("passport");
 const User = require('../models/user');
 const FacebookStrategy = require('passport-facebook').Strategy;
@@ -29,7 +28,8 @@ const FacebookStrategy = require('passport-facebook').Strategy;
               birthday: profile._json.birthday
             }
           });
-          return cb(null, user);
+          const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '24h' });
+          return done(null, token);
         } catch (error) {
           console.error('Error during findOrCreate:', error.message);
           return cb(error.stack);
@@ -55,7 +55,9 @@ const FacebookStrategy = require('passport-facebook').Strategy;
 router.get("/auth/facebook",  passport.authenticate("facebook"));
 router.get('/auth/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/' }),
 (req, res) => {
-  res.redirect(`/profile`);
+  // Successful authentication, redirect success.
+  // req.user should now contain the JWT token.
+  res.redirect(`myapp://login?token=${req.user}`);
 });
 router.get('/logout', function(req, res){
   req.logout(function(err) {

@@ -2,7 +2,6 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
-const { generateToken } = require('../utils/jwtUtils');
 const passport = require("passport");
 const User = require('../models/user');
 
@@ -10,7 +9,6 @@ passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     callbackURL: "/auth/google/callback",
-    profileFields: ['id', 'provider', 'displayName', 'email']
   },
   async (accessToken, refreshToken, profile, cb) => {
     try {
@@ -29,7 +27,8 @@ passport.use(new GoogleStrategy({
           birthday: profile._json.birthday
         }
       });
-      return cb(null, user);
+      const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '24h' });
+      return done(null, token);
     } catch (error) {
       console.error('Error during findOrCreate:', error.message);
       return cb(error.stack);
@@ -44,8 +43,14 @@ router.get('/auth/google/callback',
   passport.authenticate('google', { failureRedirect: '/' }),
   function(req, res) {
     // Successful authentication, redirect success.
+    // req.user contains the authenticated user.
+    const user = req.user;
+
+    // Generate a JWT
+    const token = jwt.sign(user, 'YOUR_SECRET_KEY', { expiresIn: '24h' });
+
    
-    res.redirect(`/profile`);
+    res.redirect(`myapp://login?token=${token}`);
   });
 
 module.exports = router;
